@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Tiếng Anh: Chủ đề Hobbies</title>
+    
+    <!-- 1. React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 2. Babel để dịch code JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- 3. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 4. Phosphor Icons (Thay thế cho Lucide React) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+        
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slideUp { animation: slideUp 0.3s ease-out; }
+        
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-popIn { animation: popIn 0.2s ease-out; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Main App Component ---
+        const EnglishLearningApp = () => {
+            const [activeTab, setActiveTab] = useState('theory');
+            const [studentName, setStudentName] = useState('');
+            const [isNameSet, setIsNameSet] = useState(false);
+
+            // Load name from storage on mount
+            useEffect(() => {
+                const savedName = localStorage.getItem('hobby_student_name');
+                if (savedName) {
+                    setStudentName(savedName);
+                    setIsNameSet(true);
+                }
+            }, []);
+
+            const handleStart = () => {
+                if (studentName.trim()) {
+                    localStorage.setItem('hobby_student_name', studentName);
+                    setIsNameSet(true);
+                }
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('hobby_student_name');
+                localStorage.removeItem('hobby_quiz_state_type1');
+                localStorage.removeItem('hobby_quiz_state_type2');
+                localStorage.removeItem('hobby_active_mode');
+                setStudentName('');
+                setIsNameSet(false);
+                setActiveTab('theory');
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* Header */}
+                    <header className="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-20">
+                        <div className="max-w-4xl mx-auto flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <i className="ph-fill ph-pen-nib text-2xl"></i>
+                                <h1 className="text-xl md:text-2xl font-bold truncate">English Grammar: Hobbies</h1>
+                            </div>
+                            {isNameSet && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm font-medium hidden sm:block">Hi, {studentName}</span>
+                                    <button 
+                                        onClick={handleLogout}
+                                        className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-xs flex items-center gap-1 transition-colors"
+                                    >
+                                        <i className="ph-bold ph-arrow-counter-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <div className="max-w-4xl mx-auto p-4 w-full flex-grow">
+                        {!isNameSet ? (
+                            <div className="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-lg text-center animate-fadeIn">
+                                <i className="ph-fill ph-user text-6xl text-blue-500 mb-4 inline-block"></i>
+                                <h2 className="text-2xl font-bold text-gray-800 mb-2">Chào mừng bạn!</h2>
+                                <p className="text-gray-500 mb-6">Vui lòng nhập tên để bắt đầu bài học và ghi lại kết quả.</p>
+                                <input
+                                    type="text"
+                                    value={studentName}
+                                    onChange={(e) => setStudentName(e.target.value)}
+                                    placeholder="Nhập tên của bạn..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleStart()}
+                                />
+                                <button
+                                    onClick={handleStart}
+                                    disabled={!studentName.trim()}
+                                    className={`w-full py-3 rounded-lg font-bold text-white transition-all ${
+                                        studentName.trim() ? 'bg-blue-600 hover:bg-blue-700 shadow-md' : 'bg-gray-300 cursor-not-allowed'
+                                    }`}
+                                >
+                                    Bắt đầu học
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Navigation Tabs */}
+                                <div className="flex flex-wrap gap-2 mb-6 bg-white p-2 rounded-xl shadow-sm sticky top-20 z-10">
+                                    <button
+                                        onClick={() => setActiveTab('theory')}
+                                        className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                                            activeTab === 'theory' ? 'bg-blue-100 text-blue-700 font-bold' : 'hover:bg-gray-100 text-gray-600'
+                                        }`}
+                                    >
+                                        <i className="ph-bold ph-book-open text-lg"></i> <span className="hidden sm:inline">Lý Thuyết</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('vocab')}
+                                        className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                                            activeTab === 'vocab' ? 'bg-green-100 text-green-700 font-bold' : 'hover:bg-gray-100 text-gray-600'
+                                        }`}
+                                    >
+                                        <i className="ph-bold ph-text-t text-lg"></i> <span className="hidden sm:inline">Từ Vựng</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('practice')}
+                                        className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                                            activeTab === 'practice' ? 'bg-orange-100 text-orange-700 font-bold' : 'hover:bg-gray-100 text-gray-600'
+                                        }`}
+                                    >
+                                        <i className="ph-bold ph-activity text-lg"></i> <span className="hidden sm:inline">Bài Tập</span>
+                                    </button>
+                                </div>
+
+                                {/* Content Area */}
+                                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 min-h-[400px] mb-10">
+                                    {activeTab === 'theory' && <TheorySection />}
+                                    {activeTab === 'vocab' && <VocabSection />}
+                                    {activeTab === 'practice' && <PracticeSection studentName={studentName} />}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Theory Section ---
+        const TheorySection = () => {
+            return (
+                <div className="space-y-6 animate-fadeIn">
+                    <div className="bg-white border rounded-xl p-4 shadow-sm">
+                        <h2 className="text-xl font-bold text-blue-800 border-b pb-2 mb-4">I. 3 Cấu trúc câu cơ bản</h2>
+                        <div className="space-y-4">
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                                <div className="font-bold text-blue-700">1. Ai làm gì? (Hành động)</div>
+                                <div className="font-mono bg-white p-2 rounded border my-1">
+                                    S (Ai) + V (Làm) + N (Cái gì)
+                                </div>
+                                <div className="text-sm italic text-gray-600">VD: I (S) build (V) a house (N).</div>
+                            </div>
+                            <div className="bg-orange-50 p-3 rounded-lg">
+                                <div className="font-bold text-orange-700">2. Miêu tả (Như thế nào?)</div>
+                                <div className="font-mono bg-white p-2 rounded border my-1">
+                                    S (Ai/Cái gì) + tobe + Adj (Tính từ)
+                                </div>
+                                <div className="text-sm italic text-gray-600">VD: She (S) is (tobe) creative (Adj).</div>
+                            </div>
+                            <div className="bg-teal-50 p-3 rounded-lg">
+                                <div className="font-bold text-teal-700">3. Định nghĩa (Là cái gì?)</div>
+                                <div className="font-mono bg-white p-2 rounded border my-1">
+                                    S (Ai/Cái gì) + tobe + N (Danh từ)
+                                </div>
+                                <div className="text-sm italic text-gray-600">VD: It (S) is (tobe) a table (N).</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-xl">
+                        <h2 className="text-lg font-bold text-yellow-800 mb-2">II. Lưu ý quan trọng</h2>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <h3 className="font-bold text-sm uppercase text-gray-700">1. Phân biệt loại từ</h3>
+                                <ul className="text-sm space-y-1 mt-1 bg-white p-2 rounded">
+                                    <li><strong>Danh từ (N):</strong> Chỉ sự vật, con người (House, Pen, Music...)</li>
+                                    <li><strong>Động từ (V):</strong> Chỉ hành động (Play, Cook, Use...)</li>
+                                    <li><strong>Tính từ (Adj):</strong> Chỉ tính chất (Good, Happy, Hard...)</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-sm uppercase text-gray-700">2. Cặp từ dễ nhầm</h3>
+                                <ul className="text-sm space-y-1 mt-1 bg-white p-2 rounded">
+                                    <li><strong>Person</strong> (số ít) vs <strong>People</strong> (số nhiều)</li>
+                                    <li><strong>Hard</strong> (tính từ: khó) vs <strong>Hard</strong> (trạng từ: chăm chỉ)</li>
+                                    <li><strong>Creative</strong> (tính từ) vs <strong>Creativity</strong> (danh từ)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Vocab Section ---
+        const VocabSection = () => {
+            const vocabList = [
+                { word: 'Hobby', type: 'N', meaning: 'Sở thích', ex: 'Music is a hobby' },
+                { word: 'Benefit', type: 'N', meaning: 'Lợi ích', ex: 'It has benefit' },
+                { word: 'Creativity', type: 'N', meaning: 'Sự sáng tạo', ex: 'She has creativity' },
+                { word: 'Creator', type: 'N', meaning: 'Người sáng tạo', ex: 'Content creator' },
+                { word: 'Free time', type: 'N', meaning: 'Thời gian rảnh', ex: 'I have free time' },
+                { word: 'Lesson', type: 'N', meaning: 'Bài học', ex: 'I have a lesson' },
+                { word: 'People', type: 'N', meaning: 'Mọi người (số nhiều)', ex: 'People are nice' },
+                { word: 'Person', type: 'N', meaning: 'Một người (số ít)', ex: 'A person' },
+                { word: 'Show', type: 'V', meaning: 'Cho thấy/Chỉ', ex: 'I show you homework' },
+                { word: 'Build', type: 'V', meaning: 'Xây dựng', ex: 'I build a house' },
+                { word: 'Create', type: 'V', meaning: 'Tạo ra', ex: 'He creates school' },
+                { word: 'Need', type: 'V', meaning: 'Cần', ex: 'I need you' },
+                { word: 'Use', type: 'V', meaning: 'Sử dụng', ex: 'I use a pen' },
+                { word: 'Want', type: 'V', meaning: 'Muốn', ex: 'I want a car' },
+                { word: 'Help', type: 'V', meaning: 'Giúp đỡ', ex: 'I help you' },
+                { word: 'Nice', type: 'Adj', meaning: 'Tốt tính/Đẹp', ex: 'He is nice' },
+                { word: 'Amazing', type: 'Adj', meaning: 'Tuyệt vời', ex: 'He is amazing' },
+                { word: 'Hard', type: 'Adj', meaning: 'Khó khăn', ex: 'Homework is hard' },
+                { word: 'Creative', type: 'Adj', meaning: 'Sáng tạo', ex: 'She is creative' },
+                { word: 'Common', type: 'Adj', meaning: 'Phổ biến', ex: 'Tet is common' },
+                { word: 'Happy', type: 'Adj', meaning: 'Hạnh phúc', ex: 'I am happy' },
+                { word: 'Usually', type: 'Adv', meaning: 'Thường xuyên', ex: 'I usually play' },
+                { word: 'Your', type: 'Adj', meaning: 'Của bạn', ex: 'Your pen' },
+            ];
+
+            return (
+                <div className="animate-fadeIn">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i className="ph-fill ph-text-t text-green-600"></i>
+                        Từ vựng chủ đề Sở thích & Đời sống
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {vocabList.map((item, idx) => (
+                            <div key={idx} className="border rounded-lg p-3 hover:shadow-md transition-shadow bg-white flex flex-col justify-between h-full">
+                                <div className="flex justify-between items-start">
+                                    <div className="font-bold text-lg text-slate-700">{item.word}</div>
+                                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                                        item.type === 'N' ? 'bg-blue-100 text-blue-700' :
+                                        item.type === 'V' ? 'bg-green-100 text-green-700' :
+                                        'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                        {item.type}
+                                    </span>
+                                </div>
+                                <div className="mt-1">
+                                    <div className="text-sm font-medium text-gray-800">{item.meaning}</div>
+                                    <div className="text-xs text-gray-500 italic mt-1">VD: {item.ex}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Practice Section ---
+        const PracticeSection = ({ studentName }) => {
+            const [mode, setMode] = useState(null);
+
+            useEffect(() => {
+                const savedMode = localStorage.getItem('hobby_active_mode');
+                if (savedMode) {
+                    setMode(savedMode);
+                }
+            }, []);
+
+            const handleSetMode = (m) => {
+                setMode(m);
+                localStorage.setItem('hobby_active_mode', m);
+            };
+
+            const handleBackToMenu = () => {
+                if (window.confirm("Bạn có chắc muốn quay lại? Tiến độ hiện tại của bài này sẽ bị xóa.")) {
+                    setMode(null);
+                    localStorage.removeItem('hobby_active_mode');
+                    localStorage.removeItem('hobby_quiz_state_type1');
+                    localStorage.removeItem('hobby_quiz_state_type2');
+                }
+            };
+
+            if (!mode) {
+                return (
+                    <div className="animate-fadeIn text-center py-8">
+                        <h2 className="text-2xl font-bold mb-6 text-blue-900">Chọn dạng bài tập</h2>
+                        <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                            <button 
+                                onClick={() => handleSetMode('type1')}
+                                className="flex flex-col items-center justify-center p-8 bg-blue-50 border-2 border-blue-200 rounded-2xl hover:bg-blue-100 hover:border-blue-400 transition-all group"
+                            >
+                                <i className="ph-fill ph-list-bullets text-5xl text-blue-600 mb-4 group-hover:scale-110 transition-transform"></i>
+                                <span className="text-xl font-bold text-blue-800">Dạng 1: Trắc nghiệm</span>
+                                <span className="text-sm text-gray-600 mt-2">30 câu hỏi (Sắp xếp câu & Phân biệt từ loại)</span>
+                            </button>
+
+                            <button 
+                                onClick={() => handleSetMode('type2')}
+                                className="flex flex-col items-center justify-center p-8 bg-purple-50 border-2 border-purple-200 rounded-2xl hover:bg-purple-100 hover:border-purple-400 transition-all group"
+                            >
+                                <i className="ph-fill ph-keyboard text-5xl text-purple-600 mb-4 group-hover:scale-110 transition-transform"></i>
+                                <span className="text-xl font-bold text-purple-800">Dạng 2: Dịch câu</span>
+                                <span className="text-sm text-gray-600 mt-2">Gõ câu trả lời (Tự động bỏ qua lỗi dấu câu)</span>
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="flex items-center justify-between mb-4 border-b pb-4">
+                        <button onClick={handleBackToMenu} className="flex items-center gap-2 text-gray-500 hover:text-red-600 font-medium transition-colors px-3 py-1 rounded hover:bg-red-50">
+                            <i className="ph-bold ph-house"></i> Về Menu Bài Tập (Xóa tiến độ)
+                        </button>
+                        <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded text-sm font-bold">
+                           Học sinh: {studentName}
+                        </span>
+                    </div>
+                    {mode === 'type1' ? <QuizType1 studentName={studentName} /> : <QuizType2 studentName={studentName} />}
+                </div>
+            );
+        };
+
+        // --- Helpers ---
+        const useQuizState = (key, initialState) => {
+            const [state, setState] = useState(() => {
+                const saved = localStorage.getItem(key);
+                return saved ? JSON.parse(saved) : initialState;
+            });
+
+            useEffect(() => {
+                localStorage.setItem(key, JSON.stringify(state));
+            }, [key, state]);
+
+            return [state, setState];
+        };
+
+        const QuestionNavigator = ({ total, current, history }) => {
+            return (
+                <div className="mb-6">
+                   <div className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Tiến độ làm bài</div>
+                   <div className="flex flex-wrap gap-2">
+                     {Array.from({ length: total }, (_, i) => {
+                       const isDone = i < history.length;
+                       const isCurrent = i === current;
+                       const result = history[i]?.isCorrect;
+                       
+                       let bgClass = "bg-gray-100 text-gray-400 border-gray-200";
+                       if (isCurrent) bgClass = "bg-blue-600 text-white border-blue-600 ring-2 ring-blue-200";
+                       else if (isDone) {
+                          bgClass = result ? "bg-green-100 text-green-700 border-green-300" : "bg-red-50 text-red-400 border-red-200";
+                       }
+
+                       return (
+                         <div key={i} className={`w-8 h-8 flex items-center justify-center rounded-md border text-sm font-bold transition-all ${bgClass}`}>
+                           {i + 1}
+                         </div>
+                       );
+                     })}
+                   </div>
+                </div>
+            );
+        };
+
+        const exportToWord = (studentName, score, total, history, quizTitle) => {
+            const date = new Date().toLocaleString('vi-VN');
+            
+            const tableRows = history.map((item, index) => `
+                <tr style="background-color: ${index % 2 === 0 ? '#f9fafb' : '#ffffff'};">
+                <td style="padding: 10px; border: 1px solid #e5e7eb;"><b>${index + 1}</b></td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb;">${item.question}</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb; color: ${item.isCorrect ? '#16a34a' : '#dc2626'}; font-weight: bold;">
+                    ${item.userAnswer}
+                </td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb; color: #1d4ed8;">${item.correctAnswer}</td>
+                <td style="padding: 10px; border: 1px solid #e5e7eb; text-align: center;">
+                    ${item.isCorrect ? '<span style="color: #16a34a;">&#10003; ĐÚNG</span>' : '<span style="color: #dc2626;">&#10007; SAI</span>'}
+                </td>
+                </tr>
+            `).join('');
+
+            const content = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                <meta charset="utf-8">
+                <title>Kết quả bài tập</title>
+                <style>
+                    body { font-family: 'Times New Roman', serif; padding: 20px; color: #1f2937; }
+                    h1 { color: #2563eb; text-align: center; font-size: 24pt; margin-bottom: 10px; }
+                    .info { margin-bottom: 20px; font-size: 14pt; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12pt; }
+                    th { background-color: #2563eb; color: white; padding: 12px; border: 1px solid #1e40af; text-align: left; }
+                    .summary { margin-top: 30px; font-size: 16pt; font-weight: bold; text-align: right; color: #b91c1c; }
+                </style>
+                </head>
+                <body>
+                <h1>BÁO CÁO KẾT QUẢ HỌC TẬP</h1>
+                <div class="info">
+                    <p><strong>Môn học:</strong> Tiếng Anh (Chủ đề Hobbies)</p>
+                    <p><strong>Dạng bài:</strong> ${quizTitle}</p>
+                    <p><strong>Học sinh:</strong> ${studentName}</p>
+                    <p><strong>Thời gian nộp bài:</strong> ${date}</p>
+                </div>
+                
+                <table>
+                    <thead>
+                    <tr>
+                        <th width="5%">#</th>
+                        <th width="35%">Câu hỏi/Yêu cầu</th>
+                        <th width="20%">Bài làm của học sinh</th>
+                        <th width="20%">Đáp án đúng</th>
+                        <th width="15%">Kết quả</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${tableRows}
+                    </tbody>
+                </table>
+
+                <div class="summary">
+                    TỔNG ĐIỂM: ${score} / ${total}
+                </div>
+                <br/>
+                <p style="text-align: center; color: #6b7280; font-size: 10pt;">
+                    Hệ thống tự động ghi nhận kết quả lúc ${date}
+                </p>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([content], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `KetQua_${studentName.replace(/\s+/g, '_')}_${quizTitle.replace(/\s+/g, '_')}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        const Feedback = ({ isCorrect, answer, explanation, onNext, isLast }) => (
+            <div className={`mt-6 p-5 rounded-xl border-l-4 shadow-sm animate-slideUp ${isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
+                <div className="flex items-center gap-2 mb-2">
+                    {isCorrect ? <i className="ph-fill ph-check-circle text-green-600 text-2xl"></i> : <div className="text-red-600 font-bold text-2xl leading-none">✕</div>}
+                    <span className={`font-bold text-xl ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                        {isCorrect ? 'Chính xác!' : 'Chưa đúng rồi'}
+                    </span>
+                </div>
+                <div className="text-gray-800 mb-4 bg-white/50 p-3 rounded">
+                    <div>Đáp án đúng: <span className="font-bold text-lg text-blue-800">{answer}</span></div>
+                    <div className="text-sm text-gray-600 italic mt-1 border-t pt-1 border-gray-200">{explanation}</div>
+                </div>
+                <button onClick={onNext} className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 flex items-center justify-center gap-2 shadow transition-transform hover:scale-[1.02]">
+                    {isLast ? 'Hoàn thành bài thi' : 'Câu tiếp theo'} <i className="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        );
+
+        const ResultScreen = ({ score, total, onRestart, history, studentName, type }) => {
+            const handleExport = () => exportToWord(studentName, score, total, history, type);
+
+            return (
+                <div className="text-center py-10 animate-fadeIn bg-slate-50 rounded-xl max-w-2xl mx-auto">
+                    <i className="ph-fill ph-star text-6xl mx-auto text-yellow-400 mb-4 block"></i>
+                    <h2 className="text-2xl font-bold mb-2 text-slate-800">Chúc mừng {studentName}!</h2>
+                    <p className="text-lg text-gray-600 mb-6">Bạn đã hoàn thành bài tập với kết quả <span className="font-bold text-blue-600 text-2xl">{score}/{total}</span></p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+                        <button onClick={onRestart} className="bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-bold hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                            <i className="ph-bold ph-arrow-counter-clockwise"></i> Làm lại
+                        </button>
+                        <button onClick={handleExport} className="bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl animate-pulse">
+                            <i className="ph-bold ph-file-text"></i> Tải lại báo cáo (.doc)
+                        </button>
+                    </div>
+                    
+                    <div className="text-left bg-white p-4 rounded-xl border shadow-sm mx-4">
+                        <p className="flex items-center gap-2 mb-3 border-b pb-2"><i className="ph-bold ph-list-bullets"></i> <strong>Lịch sử làm bài:</strong></p>
+                        <ul className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        {history.map((ans, idx) => (
+                            <li key={idx} className={`text-sm p-2 rounded ${ans.isCorrect ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                            <div className="font-bold text-gray-700">Câu {idx + 1}: {ans.question}</div>
+                            <div className="flex justify-between mt-1 items-center">
+                                <span className={ans.isCorrect ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>Bạn: "{ans.userAnswer}"</span>
+                                {ans.isCorrect ? <i className="ph-fill ph-check-circle text-green-500"></i> : <span className="text-gray-500 text-xs bg-gray-100 px-1 rounded">Đáp án: {ans.correctAnswer}</span>}
+                            </div>
+                            </li>
+                        ))}
+                        </ul>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- TYPE 1 QUIZ ---
+        const QuizType1 = ({ studentName }) => {
+            const questions = [
+                { id: 1, type: 'order', instruction: 'Sắp xếp câu: "Tôi xây một ngôi nhà"', words: ['house', 'build', 'a', 'I'], correct: ['I', 'build', 'a', 'house'], translation: 'I (S) + build (V) + a house (N).' },
+                { id: 2, type: 'order', instruction: 'Sắp xếp câu: "Bài tập về nhà thì khó"', words: ['is', 'hard', 'Homework'], correct: ['Homework', 'is', 'hard'], translation: 'S + tobe + adj.' },
+                { id: 3, type: 'choice', instruction: 'Chọn câu đúng: "Cô ấy sáng tạo"', options: ['She is creative.', 'She is creativity.', 'She are creative.'], correct: 0, translation: 'Creative (Adj) dùng sau tobe.' },
+                { id: 4, type: 'order', instruction: 'Sắp xếp câu: "Tôi cần bạn"', words: ['need', 'you', 'I'], correct: ['I', 'need', 'you'], translation: 'S + V + N.' },
+                { id: 5, type: 'order', instruction: 'Sắp xếp câu: "Mọi người thì tốt bụng"', words: ['People', 'nice', 'are'], correct: ['People', 'are', 'nice'], translation: 'People là số nhiều -> are.' },
+                { id: 6, type: 'choice', instruction: 'Điền từ: "I show ____ homework."', options: ['you', 'your', 'yours'], correct: 0, translation: 'Show sb (you) sth.' },
+                { id: 7, type: 'order', instruction: 'Sắp xếp câu: "Nó là bút của bạn"', words: ['is', 'your', 'It', 'pen'], correct: ['It', 'is', 'your', 'pen'], translation: 'Your pen (bút của bạn).' },
+                { id: 8, type: 'order', instruction: 'Sắp xếp câu: "Cô ấy có sự sáng tạo"', words: ['has', 'creativity', 'She'], correct: ['She', 'has', 'creativity'], translation: 'Has (V) + Noun (creativity).' },
+                { id: 9, type: 'choice', instruction: 'Chọn câu đúng: "Tôi muốn một chiếc xe hơi"', options: ['I want a car.', 'I wants a car.', 'I to want a car.'], correct: 0, translation: 'I want a car.' },
+                { id: 10, type: 'order', instruction: 'Sắp xếp câu: "Tết thì phổ biến ở Việt Nam"', words: ['in', 'is', 'common', 'Vietnam', 'Tet'], correct: ['Tet', 'is', 'common', 'in', 'Vietnam'], translation: 'Tet (S) + is (tobe) + common (adj).' },
+                { id: 11, type: 'choice', instruction: 'Từ "Happy" là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 2, translation: 'Happy (Hạnh phúc) là tính từ miêu tả cảm xúc.' },
+                { id: 12, type: 'choice', instruction: 'Từ "Play" là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 1, translation: 'Play (Chơi) là động từ chỉ hành động.' },
+                { id: 13, type: 'choice', instruction: 'Từ "House" là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 0, translation: 'House (Ngôi nhà) là danh từ chỉ vật.' },
+                { id: 14, type: 'choice', instruction: 'Từ "Creativity" là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 0, translation: 'Creativity (Sự sáng tạo) là danh từ. Creative mới là tính từ.' },
+                { id: 15, type: 'choice', instruction: 'Từ "Amazing" là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 2, translation: 'Amazing (Tuyệt vời) là tính từ.' },
+                { id: 16, type: 'choice', instruction: 'Từ "Build" là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 1, translation: 'Build (Xây dựng) là động từ.' },
+                { id: 17, type: 'choice', instruction: 'Trong câu "I use a pen", từ "use" là gì?', options: ['S (Chủ ngữ)', 'V (Động từ)', 'N (Tân ngữ)'], correct: 1, translation: 'Use (sử dụng) là hành động.' },
+                { id: 18, type: 'choice', instruction: 'Trong câu "She is nice", từ "nice" là gì?', options: ['V (Động từ)', 'N (Danh từ)', 'Adj (Tính từ)'], correct: 2, translation: 'Nice đứng sau tobe "is" là tính từ.' },
+                { id: 19, type: 'choice', instruction: 'Từ "Usually" là loại từ gì?', options: ['Danh từ', 'Động từ', 'Trạng từ (Adv)'], correct: 2, translation: 'Usually (thường xuyên) là trạng từ chỉ tần suất.' },
+                { id: 20, type: 'choice', instruction: 'Từ "Common" (phổ biến) là loại từ gì?', options: ['Danh từ (N)', 'Động từ (V)', 'Tính từ (Adj)'], correct: 2, translation: 'Common là tính từ.' },
+                { id: 21, type: 'order', instruction: 'Sắp xếp: "Họ giúp tôi"', words: ['me', 'help', 'They'], correct: ['They', 'help', 'me'], translation: 'They (S) + help (V) + me (N).' },
+                { id: 22, type: 'choice', instruction: 'Điền từ: "We ____ a free time."', options: ['has', 'have', 'is'], correct: 1, translation: 'We đi với Have.' },
+                { id: 23, type: 'choice', instruction: 'Chọn câu đúng: "Anh ấy là một người sáng tạo"', options: ['He is a creator.', 'He is a creative.', 'He is create.'], correct: 0, translation: 'Creator (người sáng tạo) là Danh từ. Creative là tính từ (không dùng "a creative" đứng một mình).' },
+                { id: 24, type: 'order', instruction: 'Sắp xếp: "Âm nhạc là sở thích của tôi"', words: ['hobby', 'Music', 'is', 'my'], correct: ['Music', 'is', 'my', 'hobby'], translation: 'Music is my hobby.' },
+                { id: 25, type: 'choice', instruction: 'Từ nào LÀ KHÔNG PHẢI là tính từ?', options: ['Good', 'Nice', 'Benefit'], correct: 2, translation: 'Benefit (Lợi ích) là Danh từ. Good, Nice là Tính từ.' },
+                { id: 26, type: 'order', instruction: 'Sắp xếp: "Tôi nấu bữa tối"', words: ['dinner', 'cook', 'I'], correct: ['I', 'cook', 'dinner'], translation: 'S + V + N.' },
+                { id: 27, type: 'choice', instruction: 'Câu nào dùng sai động từ tobe?', options: ['People are nice.', 'It is a table.', 'You is smart.'], correct: 2, translation: 'Sai: You is. Đúng: You are smart.' },
+                { id: 28, type: 'choice', instruction: 'Từ "Your" (Của bạn) là loại từ gì?', options: ['Tính từ sở hữu', 'Động từ', 'Danh từ'], correct: 0, translation: 'Your, My, His, Her... là tính từ sở hữu.' },
+                { id: 29, type: 'order', instruction: 'Sắp xếp: "Nó có lợi ích"', words: ['has', 'It', 'benefit'], correct: ['It', 'has', 'benefit'], translation: 'It (số ít) dùng has.' },
+                { id: 30, type: 'choice', instruction: 'Điền từ: "She is ____ (buồn)."', options: ['happy', 'unhappy', 'hobby'], correct: 1, translation: 'Unhappy = Không hạnh phúc (Buồn).' },
+            ];
+
+            const [state, setState] = useQuizState('hobby_quiz_state_type1', {
+                currentQ: 0,
+                score: 0,
+                history: [],
+                completed: false
+            });
+
+            const [selectedWords, setSelectedWords] = useState([]);
+            const [showResult, setShowResult] = useState(false);
+            const [isCorrect, setIsCorrect] = useState(null);
+
+            useEffect(() => {
+                if (state.completed && !showResult) {
+                    exportToWord(studentName, state.score, questions.length, state.history, 'Trắc nghiệm & Sắp xếp câu');
+                }
+            }, [state.completed]);
+
+            const handleWordClick = (word) => {
+                if (!selectedWords.includes(word)) setSelectedWords([...selectedWords, word]);
+            };
+            const resetSelection = () => { setSelectedWords([]); setIsCorrect(null); };
+
+            const checkOrder = () => {
+                const q = questions[state.currentQ];
+                const userAns = selectedWords.join(' ');
+                const correctAns = q.correct.join(' ');
+                const right = userAns === correctAns;
+                handleResult(right, userAns, correctAns);
+            };
+
+            const handleChoice = (index) => {
+                const q = questions[state.currentQ];
+                const right = index === q.correct;
+                const userAns = q.options[index];
+                const correctAns = q.options[q.correct];
+                handleResult(right, userAns, correctAns);
+            };
+
+            const handleResult = (right, userAns, correctAns) => {
+                const q = questions[state.currentQ];
+                setIsCorrect(right);
+                setShowResult(true);
+
+                const newHistory = [...state.history];
+                if (!newHistory[state.currentQ]) {
+                    newHistory.push({
+                        id: q.id,
+                        question: q.instruction,
+                        userAnswer: userAns,
+                        correctAnswer: correctAns,
+                        isCorrect: right,
+                        explanation: q.translation
+                    });
+                    
+                    setState(prev => ({
+                        ...prev,
+                        score: right ? prev.score + 1 : prev.score,
+                        history: newHistory
+                    }));
+                }
+            };
+
+            const nextQuestion = () => {
+                if (state.currentQ < questions.length - 1) {
+                    setState(prev => ({ ...prev, currentQ: prev.currentQ + 1 }));
+                    setSelectedWords([]);
+                    setShowResult(false);
+                    setIsCorrect(null);
+                } else {
+                    setState(prev => ({ ...prev, completed: true }));
+                    setShowResult(false);
+                }
+            };
+
+            const restart = () => {
+                setState({ currentQ: 0, score: 0, history: [], completed: false });
+                setSelectedWords([]);
+                setShowResult(false);
+                setIsCorrect(null);
+            };
+
+            if (state.completed) return <ResultScreen score={state.score} total={questions.length} onRestart={restart} history={state.history} studentName={studentName} type="Trắc nghiệm" />;
+
+            const q = questions[state.currentQ];
+
+            return (
+                <div className="max-w-xl mx-auto animate-fadeIn">
+                    <QuestionNavigator total={questions.length} current={state.currentQ} history={state.history} />
+                    
+                    <div className="flex justify-between items-center mb-6 text-sm text-gray-500 font-medium bg-gray-50 p-2 rounded-lg">
+                        <span>Câu {state.currentQ + 1}/{questions.length}</span>
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">Điểm: {state.score}</span>
+                    </div>
+
+                    <div className="bg-blue-50 p-4 rounded-xl mb-6 border border-blue-100">
+                        <h3 className="text-lg font-bold text-blue-900 mb-1 flex items-center gap-2"><i className="ph-bold ph-activity"></i> Yêu cầu</h3>
+                        <p className="text-blue-800 font-medium">{q.instruction}</p>
+                    </div>
+
+                    {q.type === 'order' && (
+                        <div className="space-y-6">
+                            <div className="min-h-[60px] bg-white border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-wrap gap-2 items-center justify-center shadow-inner">
+                                {selectedWords.length === 0 && <span className="text-gray-400 italic">Chọn từ bên dưới...</span>}
+                                {selectedWords.map((word, idx) => (
+                                    <span key={idx} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg shadow font-semibold animate-popIn">{word}</span>
+                                ))}
+                            </div>
+                            <div className="flex flex-wrap gap-2 justify-center">
+                                {q.words.map((word, idx) => (
+                                    <button key={idx} onClick={() => handleWordClick(word)} disabled={selectedWords.includes(word) || showResult}
+                                        className={`px-4 py-2 rounded-lg font-medium shadow-sm transition-all ${selectedWords.includes(word) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-b-4 border-blue-200 text-blue-700 hover:-translate-y-1'}`}>{word}</button>
+                                ))}
+                            </div>
+                            {!showResult && (
+                                <div className="flex gap-2 justify-center mt-4">
+                                    <button onClick={resetSelection} className="text-gray-500 hover:text-red-500 px-4 transition-colors font-medium">Xóa</button>
+                                    <button onClick={checkOrder} disabled={selectedWords.length !== q.words.length} className={`px-8 py-2 rounded-lg font-bold text-white transition-all shadow-md ${selectedWords.length !== q.words.length ? 'bg-gray-300' : 'bg-green-600 hover:bg-green-700'}`}>Kiểm tra</button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {q.type === 'choice' && !showResult && (
+                        <div className="space-y-3">
+                            {q.options.map((opt, idx) => (
+                                <button key={idx} onClick={() => handleChoice(idx)} className="w-full text-left p-4 rounded-xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all font-medium text-lg text-slate-700 bg-white shadow-sm">{opt}</button>
+                            ))}
+                        </div>
+                    )}
+
+                    {showResult && <Feedback isCorrect={isCorrect} answer={q.type === 'order' ? q.correct.join(' ') : q.options[q.correct]} explanation={q.translation} onNext={nextQuestion} isLast={state.currentQ === questions.length - 1} />}
+                </div>
+            );
+        };
+
+        // --- TYPE 2 QUIZ ---
+        const QuizType2 = ({ studentName }) => {
+            const questions = [
+                { id: 1, vn: 'Tôi chơi bóng đá', en: 'I play football' },
+                { id: 2, vn: 'Cô ấy thông minh', en: 'She is smart' },
+                { id: 3, vn: 'Tôi làm bài tập', en: 'I do homework' },
+                { id: 4, vn: 'Nó là cái bàn', en: 'It is a table' },
+                { id: 5, vn: 'Bạn là thông minh', en: 'You are smart' },
+                { id: 6, vn: 'Tôi xây một ngôi nhà', en: 'I build a house' },
+                { id: 7, vn: 'Mọi người thì tốt bụng', en: 'People are nice' },
+                { id: 8, vn: 'Bài tập về nhà thì khó', en: 'Homework is hard' },
+                { id: 9, vn: 'Tôi cần bạn', en: 'I need you' },
+                { id: 10, vn: 'Tôi sử dụng bút', en: 'I use a pen' },
+                { id: 11, vn: 'Cô ấy sáng tạo', en: 'She is creative' },
+                { id: 12, vn: 'Anh ấy chặt cây', en: 'He grows a tree' },
+                { id: 13, vn: 'Tôi muốn một chiếc xe ô tô', en: 'I want a car' },
+                { id: 14, vn: 'Nó có lợi ích', en: 'It has benefit' },
+                { id: 15, vn: 'Âm nhạc là một sở thích', en: 'Music is a hobby' },
+            ];
+
+            const [state, setState] = useQuizState('hobby_quiz_state_type2', {
+                currentQ: 0,
+                score: 0,
+                history: [],
+                completed: false
+            });
+
+            const [userInput, setUserInput] = useState('');
+            const [showResult, setShowResult] = useState(false);
+            const [isCorrect, setIsCorrect] = useState(null);
+
+            useEffect(() => {
+                if (state.completed && !showResult) {
+                    exportToWord(studentName, state.score, questions.length, state.history, 'Dịch câu (Anh-Việt)');
+                }
+            }, [state.completed]);
+
+            const normalize = (str) => {
+                return str
+                    .toLowerCase()
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "") 
+                    .replace(/\s{2,}/g, " ") 
+                    .trim();
+            };
+
+            const checkAnswer = () => {
+                const q = questions[state.currentQ];
+                const userNorm = normalize(userInput);
+                const correctNorm = normalize(q.en);
+                const right = userNorm === correctNorm;
+                
+                setIsCorrect(right);
+                setShowResult(true);
+
+                const newHistory = [...state.history];
+                if (!newHistory[state.currentQ]) {
+                    newHistory.push({
+                        id: q.id,
+                        question: `Dịch: "${q.vn}"`,
+                        userAnswer: userInput,
+                        correctAnswer: q.en,
+                        isCorrect: right,
+                        explanation: `Đáp án chuẩn: ${q.en}`
+                    });
+
+                    setState(prev => ({
+                        ...prev,
+                        score: right ? prev.score + 1 : prev.score,
+                        history: newHistory
+                    }));
+                }
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter' && !showResult && userInput.trim()) {
+                    checkAnswer();
+                }
+            };
+
+            const nextQuestion = () => {
+                if (state.currentQ < questions.length - 1) {
+                    setState(prev => ({ ...prev, currentQ: prev.currentQ + 1 }));
+                    setUserInput('');
+                    setShowResult(false);
+                    setIsCorrect(null);
+                } else {
+                    setState(prev => ({ ...prev, completed: true }));
+                    setShowResult(false);
+                }
+            };
+
+            const restart = () => {
+                setState({ currentQ: 0, score: 0, history: [], completed: false });
+                setUserInput('');
+                setShowResult(false);
+                setIsCorrect(null);
+            };
+
+            if (state.completed) return <ResultScreen score={state.score} total={questions.length} onRestart={restart} history={state.history} studentName={studentName} type="Dịch câu" />;
+
+            const q = questions[state.currentQ];
+
+            return (
+                <div className="max-w-xl mx-auto animate-fadeIn">
+                    <QuestionNavigator total={questions.length} current={state.currentQ} history={state.history} />
+                    
+                    <div className="flex justify-between items-center mb-6 text-sm text-gray-500 font-medium bg-gray-50 p-2 rounded-lg">
+                        <span>Câu {state.currentQ + 1}/{questions.length}</span>
+                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">Điểm: {state.score}</span>
+                    </div>
+
+                    <div className="bg-purple-50 p-6 rounded-xl mb-6 border border-purple-100 text-center">
+                        <p className="text-gray-500 text-sm mb-2 uppercase font-bold">Dịch sang tiếng Anh</p>
+                        <h3 className="text-2xl font-bold text-purple-900">"{q.vn}"</h3>
+                    </div>
+
+                    {!showResult ? (
+                        <div className="space-y-4">
+                            <input 
+                                type="text" 
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Gõ câu trả lời của bạn..."
+                                className="w-full p-4 text-lg border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition-colors"
+                                autoFocus
+                            />
+                            <button 
+                                onClick={checkAnswer}
+                                disabled={!userInput.trim()}
+                                className={`w-full py-3 rounded-xl font-bold text-white text-lg transition-all shadow-md ${
+                                    !userInput.trim() ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 hover:shadow-lg'
+                                }`}
+                            >
+                                Kiểm tra
+                            </button>
+                            <p className="text-xs text-center text-gray-400">Mẹo: Không cần viết hoa, không cần dấu chấm câu.</p>
+                        </div>
+                    ) : (
+                        <Feedback isCorrect={isCorrect} answer={q.en} explanation="Bạn có thể viết hoa hoặc thường tuỳ ý." onNext={nextQuestion} isLast={state.currentQ === questions.length - 1} />
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<EnglishLearningApp />);
+    </script>
+</body>
+</html>

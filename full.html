@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng Hợp 5 Thì Tiếng Anh & Luyện Tập Đảo Đề</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .correct-answer {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+        }
+        
+        .incorrect-answer {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+        }
+
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-3 md:mb-0">
+                <div class="bg-white/20 p-2 rounded-lg">
+                    <i class="fas fa-book-open text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold leading-tight">Ngữ Pháp Tiếng Anh Tổng Hợp</h1>
+                    <p class="text-blue-200 text-sm">HTĐ • HTTD • HTHT • QKĐ • TLĐ</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="bg-white/10 px-4 py-2 rounded-full flex items-center space-x-2">
+                    <i class="fas fa-clock text-yellow-300"></i>
+                    <span id="timer" class="font-mono font-bold text-lg">00:00</span>
+                </div>
+                <button onclick="resetApp()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow-md">
+                    <i class="fas fa-redo-alt mr-1"></i> Làm Lại
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6 gap-6 grid grid-cols-1 lg:grid-cols-12">
+        
+        <!-- Sidebar (Theory & Stats) -->
+        <aside class="lg:col-span-4 space-y-6">
+            
+            <!-- Mode Switcher -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-1">
+                <div class="grid grid-cols-2 gap-1">
+                    <button onclick="switchTab('practice')" id="tab-practice" class="tab-btn py-2.5 px-4 rounded-lg text-sm font-medium transition-all text-center hover:bg-gray-50 bg-blue-50 text-blue-700 font-bold shadow-sm">
+                        <i class="fas fa-pencil-alt mr-2"></i>Luyện Tập
+                    </button>
+                    <button onclick="switchTab('theory')" id="tab-theory" class="tab-btn py-2.5 px-4 rounded-lg text-sm font-medium transition-all text-center hover:bg-gray-50 text-gray-500">
+                        <i class="fas fa-graduation-cap mr-2"></i>Lý Thuyết
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theory Summary (Visible in Theory Tab or as Quick Ref) -->
+            <div id="theory-panel" class="hidden h-[calc(100vh-200px)] overflow-y-auto pr-2 space-y-4 pb-10">
+                <!-- Theory Cards Injected via JS -->
+            </div>
+
+            <!-- Stats & Progress (Visible in Practice Tab) -->
+            <div id="progress-panel" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-24">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-pie text-indigo-500 mr-2"></i> Thống Kê
+                </h3>
+                
+                <div class="flex justify-between items-center mb-2 text-sm text-gray-600">
+                    <span>Tiến độ</span>
+                    <span id="progress-text" class="font-bold">0/0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                        <div class="text-green-600 text-xs font-bold uppercase mb-1">Chính xác</div>
+                        <div id="score-correct" class="text-2xl font-extrabold text-green-700">0</div>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                        <div class="text-red-600 text-xs font-bold uppercase mb-1">Sai</div>
+                        <div id="score-incorrect" class="text-2xl font-extrabold text-red-700">0</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Bộ Lọc Câu Hỏi</h4>
+                    <select id="tense-filter" onchange="filterQuestions()" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="all">⚡ Trộn tất cả (Mixed)</option>
+                        <option value="HTD">Hiện tại đơn (Simple Present)</option>
+                        <option value="HTTD">Hiện tại tiếp diễn (Present Cont.)</option>
+                        <option value="HTHT">Hiện tại hoàn thành (Present Perf.)</option>
+                        <option value="QKD">Quá khứ đơn (Simple Past)</option>
+                        <option value="TLD">Tương lai đơn (Simple Future)</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Quiz Area -->
+        <section class="lg:col-span-8">
+            <div id="quiz-container" class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden min-h-[400px] flex flex-col relative">
+                
+                <!-- Question Header -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <span id="question-tag" class="text-xs font-bold px-2 py-1 rounded bg-gray-200 text-gray-700">Loading...</span>
+                    <span class="text-sm font-medium text-gray-500">Câu hỏi <span id="current-q-idx">1</span></span>
+                </div>
+
+                <!-- Question Body -->
+                <div class="p-6 md:p-8 flex-grow flex flex-col justify-center">
+                    <h2 id="question-text" class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-8">
+                        Đang tải dữ liệu câu hỏi...
+                    </h2>
+
+                    <!-- Options -->
+                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Options Injected Here -->
+                    </div>
+                </div>
+
+                <!-- Feedback & Controls -->
+                <div id="feedback-area" class="hidden bg-gray-50 border-t border-gray-100 p-6 animate-fade-in">
+                    <div class="flex flex-col md:flex-row gap-4 items-start">
+                        <div id="feedback-icon" class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl"></div>
+                        <div class="flex-grow">
+                            <h3 id="feedback-title" class="font-bold text-lg mb-1"></h3>
+                            <p id="feedback-explanation" class="text-gray-600 text-sm leading-relaxed"></p>
+                        </div>
+                        <button id="next-btn" onclick="nextQuestion()" class="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition transform hover:scale-105">
+                            Câu Tiếp <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Start Screen Overlay -->
+                <div id="start-screen" class="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-blue-600 text-4xl animate-bounce">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Sẵn sàng luyện tập?</h2>
+                    <p class="text-gray-500 mb-8 max-w-md">Hệ thống sẽ trộn ngẫu nhiên câu hỏi từ 5 thì cơ bản. Hãy chú ý đến dấu hiệu nhận biết thời gian!</p>
+                    <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold py-3 px-10 rounded-xl shadow-lg transition transform hover:scale-105">
+                        Bắt Đầu Ngay
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>Tổng hợp từ dữ liệu bài tập ngữ pháp tiếng Anh.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA SOURCE ---
+        // Tổng hợp từ các file html đã cung cấp
+        const theoryData = {
+            "HTD": {
+                name: "Hiện Tại Đơn (Simple Present)",
+                color: "blue",
+                formula: "S + V(s/es) | S + don't/doesn't + V",
+                usage: "Thói quen, sự thật hiển nhiên, lịch trình cố định.",
+                signal: "Always, usually, often, every day, sometimes..."
+            },
+            "HTTD": {
+                name: "Hiện Tại Tiếp Diễn (Present Continuous)",
+                color: "green",
+                formula: "S + am/is/are + V-ing",
+                usage: "Đang xảy ra lúc nói, xung quanh lúc nói, kế hoạch tương lai gần.",
+                signal: "Now, right now, at the moment, Look!, Listen!..."
+            },
+            "HTHT": {
+                name: "Hiện Tại Hoàn Thành (Present Perfect)",
+                color: "purple",
+                formula: "S + have/has + V3/ed",
+                usage: "Hành động trong quá khứ không rõ thời gian, kết quả ở hiện tại, trải nghiệm.",
+                signal: "Just, already, yet, ever, never, since, for, recently..."
+            },
+            "QKD": {
+                name: "Quá Khứ Đơn (Simple Past)",
+                color: "orange",
+                formula: "S + V2/ed | S + didn't + V",
+                usage: "Hành động đã kết thúc trong quá khứ có thời gian xác định.",
+                signal: "Yesterday, last week/month, ...ago, in 1990..."
+            },
+            "TLD": {
+                name: "Tương Lai Đơn (Simple Future)",
+                color: "indigo",
+                formula: "S + will + V",
+                usage: "Dự đoán không căn cứ, quyết định tức thời, lời hứa.",
+                signal: "Tomorrow, next week, soon, I think/hope/promise..."
+            }
+        };
+
+        const questionBank = [
+            // --- HIỆN TẠI ĐƠN (HTD) ---
+            { tense: "HTD", q: "The earth _____ around the sun.", opts: ["go", "goes", "is going", "went"], a: 1, exp: "Sự thật hiển nhiên chia Hiện tại đơn." },
+            { tense: "HTD", q: "She _____ coffee every morning.", opts: ["drink", "drinks", "drinking", "drank"], a: 1, exp: "Thói quen 'every morning' chia Hiện tại đơn." },
+            { tense: "HTD", q: "Water _____ at 100 degrees Celsius.", opts: ["boil", "boils", "boiling", "boiled"], a: 1, exp: "Sự thật vật lý chia Hiện tại đơn." },
+            { tense: "HTD", q: "My train _____ at 8 PM tonight.", opts: ["leave", "leaves", "is leaving", "will leave"], a: 1, exp: "Lịch trình tàu xe cố định dùng Hiện tại đơn." },
+            { tense: "HTD", q: "He _____ not like spicy food.", opts: ["do", "does", "is", "will"], a: 1, exp: "Phủ định HTĐ với 'He' dùng trợ động từ 'does'." },
+            { tense: "HTD", q: "_____ you speak English?", opts: ["Do", "Does", "Are", "Have"], a: 0, exp: "Câu hỏi HTĐ với động từ thường 'speak'." },
+            { tense: "HTD", q: "They usually _____ football on Sundays.", opts: ["play", "plays", "playing", "played"], a: 0, exp: "Trạng từ 'usually' chỉ tần suất." },
+            { tense: "HTD", q: "The sun _____ in the East.", opts: ["rise", "rises", "rising", "rose"], a: 1, exp: "Sự thật hiển nhiên." },
+
+            // --- HIỆN TẠI TIẾP DIỄN (HTTD) ---
+            { tense: "HTTD", q: "Listen! Someone _____ at the door.", opts: ["knock", "knocks", "is knocking", "knocked"], a: 2, exp: "'Listen!' là dấu hiệu hành động đang xảy ra." },
+            { tense: "HTTD", q: "Where is Tom? – He _____ in the garden.", opts: ["plays", "is playing", "played", "play"], a: 1, exp: "Hành động đang diễn ra lúc hỏi." },
+            { tense: "HTTD", q: "Look! The bus _____.", opts: ["comes", "is coming", "come", "came"], a: 1, exp: "'Look!' là dấu hiệu HTTD." },
+            { tense: "HTTD", q: "I _____ my homework right now.", opts: ["do", "am doing", "did", "have done"], a: 1, exp: "'Right now' là dấu hiệu HTTD." },
+            { tense: "HTTD", q: "Please be quiet. The baby _____.", opts: ["sleeps", "is sleeping", "slept", "has slept"], a: 1, exp: "Đề nghị giữ im lặng vì hành động đang diễn ra." },
+            { tense: "HTTD", q: "They _____ a new bridge at the moment.", opts: ["build", "are building", "built", "have built"], a: 1, exp: "'At the moment' là dấu hiệu HTTD." },
+            { tense: "HTTD", q: "Why _____ you _____?", opts: ["do / cry", "are / crying", "did / cry", "have / cried"], a: 1, exp: "Hỏi về hành động đang diễn ra trước mắt." },
+
+            // --- QUÁ KHỨ ĐƠN (QKD) ---
+            { tense: "QKD", q: "I _____ my grandma yesterday.", opts: ["visit", "visited", "visiting", "have visited"], a: 1, exp: "'Yesterday' (hôm qua) chia Quá khứ đơn." },
+            { tense: "QKD", q: "We _____ to Paris in 2015.", opts: ["go", "went", "gone", "have gone"], a: 1, exp: "'In 2015' là thời gian xác định trong quá khứ -> Went." },
+            { tense: "QKD", q: "He _____ a new car last week.", opts: ["buy", "bought", "buys", "buying"], a: 1, exp: "'Last week' chia Quá khứ đơn. Buy -> Bought." },
+            { tense: "QKD", q: "They _____ at home last night.", opts: ["weren't", "wasn't", "didn't", "not"], a: 0, exp: "Tobe quá khứ số nhiều phủ định -> Weren't." },
+            { tense: "QKD", q: "_____ you watch the movie yesterday?", opts: ["Do", "Did", "Were", "Have"], a: 1, exp: "Trợ động từ câu hỏi QKĐ là 'Did'." },
+            { tense: "QKD", q: "Shakespeare _____ many famous plays.", opts: ["write", "wrote", "written", "has written"], a: 1, exp: "Shakespeare đã mất, hành động viết đã chấm dứt -> Wrote." },
+            { tense: "QKD", q: "I _____ tired yesterday evening.", opts: ["am", "was", "were", "been"], a: 1, exp: "Tobe quá khứ ngôi I -> Was." },
+            { tense: "QKD", q: "She _____ not go to school yesterday.", opts: ["do", "did", "does", "was"], a: 1, exp: "Phủ định động từ thường quá khứ -> Didn't (did not)." },
+            { tense: "QKD", q: "We _____ pizza for dinner last night.", opts: ["eat", "ate", "eaten", "eating"], a: 1, exp: "Quá khứ của Eat là Ate." },
+
+            // --- TƯƠNG LAI ĐƠN (TLD) ---
+            { tense: "TLD", q: "I think it _____ rain tomorrow.", opts: ["rains", "will rain", "is raining", "rained"], a: 1, exp: "Dự đoán không căn cứ (I think) + tomorrow -> Will rain." },
+            { tense: "TLD", q: "Wait! I _____ help you with that bag.", opts: ["will", "am going to", "am", "do"], a: 0, exp: "Quyết định tức thời lúc nói -> Will." },
+            { tense: "TLD", q: "I promise I _____ tell anyone.", opts: ["don't", "won't", "didn't", "not"], a: 1, exp: "Lời hứa (promise) dùng Tương lai đơn." },
+            { tense: "TLD", q: "In 2050, people _____ on Mars.", opts: ["live", "will live", "living", "lived"], a: 1, exp: "Dự đoán xa trong tương lai." },
+            { tense: "TLD", q: "I hope she _____ the exam.", opts: ["pass", "will pass", "passes", "passed"], a: 1, exp: "Hy vọng (hope) thường đi với Will." },
+            { tense: "TLD", q: "_____ you marry me?", opts: ["Do", "Are", "Will", "Did"], a: 2, exp: "Lời cầu hôn/đề nghị dùng Will." },
+
+            // --- HIỆN TẠI HOÀN THÀNH (HTHT) ---
+            { tense: "HTHT", q: "I _____ that movie three times.", opts: ["saw", "have seen", "see", "seeing"], a: 1, exp: "Lặp lại 3 lần (three times) -> Hiện tại hoàn thành." },
+            { tense: "HTHT", q: "She _____ her homework yet.", opts: ["didn't finish", "hasn't finished", "doesn't finish", "won't finish"], a: 1, exp: "'Yet' trong câu phủ định -> HTHT." },
+            { tense: "HTHT", q: "We _____ here for 10 years.", opts: ["lived", "have lived", "live", "are living"], a: 1, exp: "'For 10 years' (khoảng thời gian) -> HTHT." },
+            { tense: "HTHT", q: "_____ you ever _____ to Paris?", opts: ["Did / go", "Have / been", "Do / go", "Are / going"], a: 1, exp: "Hỏi về trải nghiệm (ever) -> Have you ever been...?" },
+            { tense: "HTHT", q: "He _____ his keys. He can't get into the house.", opts: ["lost", "has lost", "loses", "is losing"], a: 1, exp: "Hành động quá khứ để lại hậu quả hiện tại -> HTHT." },
+            { tense: "HTHT", q: "I _____ just _____ a shower.", opts: ["have / taken", "did / take", "do / take", "was / taking"], a: 0, exp: "'Just' (vừa mới) -> HTHT." },
+            { tense: "HTHT", q: "My sister _____ English since 2010.", opts: ["learnt", "has learnt", "learns", "is learning"], a: 1, exp: "'Since' + mốc thời gian -> HTHT." },
+            { tense: "HTHT", q: "This is the best book I _____ ever _____.", opts: ["have / read", "did / read", "do / read", "was / reading"], a: 0, exp: "Sau so sánh nhất (The best...) dùng HTHT." },
+            { tense: "HTHT", q: "Bill _____ his leg, so he can't play.", opts: ["broke", "has broken", "breaks", "is breaking"], a: 1, exp: "Hậu quả còn ở hiện tại -> HTHT." },
+            { tense: "HTHT", q: "I _____ him recently.", opts: ["didn't see", "haven't seen", "don't see", "won't see"], a: 1, exp: "'Recently' (gần đây) -> HTHT." }
+        ];
+
+        // --- STATE ---
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let scoreCorrect = 0;
+        let scoreIncorrect = 0;
+        let timerInterval;
+        let seconds = 0;
+        let isQuizActive = false;
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTheory();
+        });
+
+        // --- FUNCTIONS ---
+
+        function renderTheory() {
+            const container = document.getElementById('theory-panel');
+            container.innerHTML = '';
+            
+            Object.keys(theoryData).forEach(key => {
+                const item = theoryData[key];
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-xl border-l-4 shadow-sm border-${item.color}-500 mb-3`;
+                card.innerHTML = `
+                    <h4 class="font-bold text-gray-800 text-lg flex items-center justify-between">
+                        ${item.name}
+                        <span class="text-xs bg-${item.color}-100 text-${item.color}-700 px-2 py-1 rounded">${key}</span>
+                    </h4>
+                    <div class="mt-3 space-y-2 text-sm">
+                        <p><span class="font-semibold text-gray-600">Công thức:</span> <span class="font-mono bg-gray-100 px-1 rounded text-${item.color}-600">${item.formula}</span></p>
+                        <p><span class="font-semibold text-gray-600">Cách dùng:</span> ${item.usage}</p>
+                        <p><span class="font-semibold text-gray-600">Dấu hiệu:</span> <span class="italic text-gray-500">${item.signal}</span></p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function switchTab(tab) {
+            // UI Styling
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'text-blue-700', 'font-bold', 'shadow-sm');
+                btn.classList.add('text-gray-500');
+            });
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            activeBtn.classList.add('bg-blue-50', 'text-blue-700', 'font-bold', 'shadow-sm');
+            activeBtn.classList.remove('text-gray-500');
+
+            // View Logic
+            const theoryPanel = document.getElementById('theory-panel');
+            const progressPanel = document.getElementById('progress-panel');
+            
+            if (tab === 'theory') {
+                theoryPanel.classList.remove('hidden');
+                progressPanel.classList.add('hidden');
+                // On mobile, maybe hide quiz? Keep simple for now.
+            } else {
+                theoryPanel.classList.add('hidden');
+                progressPanel.classList.remove('hidden');
+            }
+        }
+
+        function filterQuestions() {
+            if (!isQuizActive) return;
+            const filter = document.getElementById('tense-filter').value;
+            
+            if(confirm("Thay đổi bộ lọc sẽ bắt đầu bài luyện tập mới. Bạn có chắc không?")) {
+                startQuiz(filter);
+            } else {
+                // Reset select to previous value if needed, but easier to just let it be
+            }
+        }
+
+        function startQuiz(filter = null) {
+            // Get filter if not provided
+            if (!filter) filter = document.getElementById('tense-filter').value;
+
+            // Reset State
+            scoreCorrect = 0;
+            scoreIncorrect = 0;
+            seconds = 0;
+            updateStats();
+            document.getElementById('timer').innerText = "00:00";
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+
+            // Hide Start Screen
+            document.getElementById('start-screen').classList.add('hidden');
+            isQuizActive = true;
+
+            // Prepare Data
+            let pool = [];
+            if (filter === 'all') {
+                pool = [...questionBank];
+            } else {
+                pool = questionBank.filter(q => q.tense === filter);
+            }
+
+            // Shuffle Pool
+            pool.sort(() => Math.random() - 0.5);
+            currentQuestions = pool;
+            currentIndex = 0;
+
+            if (currentQuestions.length === 0) {
+                alert("Không có câu hỏi cho mục này!");
+                return;
+            }
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= currentQuestions.length) {
+                finishQuiz();
+                return;
+            }
+
+            const qData = currentQuestions[currentIndex];
+            
+            // UI Update
+            document.getElementById('current-q-idx').innerText = `${currentIndex + 1}/${currentQuestions.length}`;
+            document.getElementById('question-tag').innerText = theoryData[qData.tense] ? theoryData[qData.tense].name : qData.tense;
+            document.getElementById('question-tag').className = `text-xs font-bold px-2 py-1 rounded bg-${theoryData[qData.tense]?.color || 'gray'}-100 text-${theoryData[qData.tense]?.color || 'gray'}-700`;
+            document.getElementById('question-text').innerText = qData.q;
+            
+            // Reset Feedback
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('options-grid').classList.remove('pointer-events-none'); // Enable clicks
+
+            // Generate Options
+            const optionsContainer = document.getElementById('options-grid');
+            optionsContainer.innerHTML = '';
+            
+            qData.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50 transition-all font-medium text-gray-700 option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            updateStats();
+        }
+
+        function checkAnswer(selectedIdx, btnElement) {
+            const qData = currentQuestions[currentIndex];
+            const isCorrect = selectedIdx === qData.a;
+
+            // Disable all options
+            document.getElementById('options-grid').classList.add('pointer-events-none');
+
+            // Highlight
+            const options = document.querySelectorAll('.option-btn');
+            options[qData.a].classList.add('correct-answer'); // Show correct answer
+            
+            if (!isCorrect) {
+                btnElement.classList.add('incorrect-answer');
+                scoreIncorrect++;
+                showFeedback(false, qData.exp);
+            } else {
+                scoreCorrect++;
+                showFeedback(true, qData.exp);
+            }
+
+            updateStats();
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const fbArea = document.getElementById('feedback-area');
+            const fbIcon = document.getElementById('feedback-icon');
+            const fbTitle = document.getElementById('feedback-title');
+            const fbExp = document.getElementById('feedback-explanation');
+
+            fbArea.classList.remove('hidden');
+            
+            if (isCorrect) {
+                fbArea.classList.remove('bg-red-50');
+                fbArea.classList.add('bg-green-50');
+                fbIcon.className = 'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl bg-green-100 text-green-600';
+                fbIcon.innerHTML = '<i class="fas fa-check"></i>';
+                fbTitle.innerText = "Chính xác!";
+                fbTitle.className = "font-bold text-lg mb-1 text-green-700";
+            } else {
+                fbArea.classList.remove('bg-green-50');
+                fbArea.classList.add('bg-red-50');
+                fbIcon.className = 'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl bg-red-100 text-red-600';
+                fbIcon.innerHTML = '<i class="fas fa-times"></i>';
+                fbTitle.innerText = "Chưa đúng rồi";
+                fbTitle.className = "font-bold text-lg mb-1 text-red-700";
+            }
+
+            fbExp.innerText = explanation;
+            
+            // Auto scroll to feedback on mobile
+            fbArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            loadQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('score-correct').innerText = scoreCorrect;
+            document.getElementById('score-incorrect').innerText = scoreIncorrect;
+            
+            const total = currentQuestions.length || 1;
+            const done = currentIndex;
+            const pct = Math.round((done / total) * 100);
+            
+            document.getElementById('progress-text').innerText = `${done}/${currentQuestions.length}`;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+        }
+
+        function updateTimer() {
+            seconds++;
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            isQuizActive = false;
+            
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full p-10 text-center animate-fade-in">
+                    <div class="text-6xl text-yellow-400 mb-6"><i class="fas fa-trophy"></i></div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Hoàn Thành!</h2>
+                    <p class="text-gray-500 mb-8">Bạn đã trả lời hết câu hỏi.</p>
+                    
+                    <div class="grid grid-cols-2 gap-8 w-full max-w-sm mb-8">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-green-600">${scoreCorrect}</div>
+                            <div class="text-sm text-gray-500 uppercase font-bold">Đúng</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-red-600">${scoreIncorrect}</div>
+                            <div class="text-sm text-gray-500 uppercase font-bold">Sai</div>
+                        </div>
+                    </div>
+
+                    <button onclick="resetApp()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition">
+                        Làm Bài Lại (Trộn Đề Mới)
+                    </button>
+                </div>
+            `;
+        }
+
+        function resetApp() {
+            location.reload();
+        }
+
+    </script>
+</body>
+</html>
